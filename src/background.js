@@ -1,5 +1,3 @@
-console.log("Background script loaded");
-
 // Service Workerの起動時に実行されるイベントハンドラ
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension installed");
@@ -16,15 +14,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       let response = { videoUrl: null };
       try {
-        console.log(message.url)
         const res = await fetch(
           `https://publish.twitter.com/oembed?url=${encodeURIComponent(
             message.url
           )}`
         );
-        console.log("2");
         const json = await res.json();
-        console.log(json.html);
         const match = json.html.match(
           /https:\/\/pic\.twitter\.com\/([a-zA-Z0-9]+)/
         );
@@ -42,7 +37,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       } catch (err) {
         console.error("oEmbed fetch failed:", err);
       } finally {
-        sendResponse(response); // 必ず応答を返す
+        sendResponse(response);
       }
     })();
     return true; // 非同期応答
