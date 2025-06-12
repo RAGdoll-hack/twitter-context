@@ -59,11 +59,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
               // 各種基本情報
               const timeTag = article.querySelector("time");
-              const textTag = article.querySelector('[data-testid="tweetText"]');
+              const textTag = article.querySelector(
+                '[data-testid="tweetText"]'
+              );
               const datetime = timeTag?.getAttribute("datetime") || null;
               const tweetUrl = timeTag?.closest("a")?.href || null;
               const username =
-                article.querySelector('div[dir="ltr"] span')?.textContent || null;
+                article.querySelector('div[dir="ltr"] span')?.textContent ||
+                null;
               const displayName =
                 article.querySelector('[data-testid="User-Name"] span')
                   ?.textContent || null;
@@ -77,10 +80,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
               // oEmbed経由で動画URL取得
               let videoUrl = null;
               if (tweetUrl) {
-                try {
-                  videoUrl = await getVideoUrlFromOEmbed(tweetUrl);
-                } catch (e) {
-                  console.error("background fetch error", e);
+                // videoComponent または video-player-mini-ui- を持つかチェック
+                const hasVideo =
+                  article.querySelector('[data-testid="videoComponent"]') !==
+                  null;
+
+                if (hasVideo) {
+                  try {
+                    videoUrl = await getVideoUrlFromOEmbed(tweetUrl);
+                  } catch (e) {
+                    console.error("background fetch error", e);
+                  }
                 }
               }
 
@@ -104,8 +114,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
         // nullの要素を除外し、必要な属性を持つツイートのみをフィルタリング
         const validTweets = extracted
-          .filter(item => item !== null)
-          .filter(item => item.datetime && item.text);
+          .filter((item) => item !== null)
+          .filter((item) => item.datetime && item.text);
 
         sendResponse({
           tweets: validTweets,
